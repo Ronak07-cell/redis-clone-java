@@ -36,6 +36,7 @@ public class ClientHandler implements Runnable {
             }
         }
     }
+
     private String handleCommand(String line) {
         String[] parts = line.trim().split("\\s+");
 
@@ -73,6 +74,18 @@ public class ClientHandler implements Runnable {
                 }
                 boolean exists = store.exists(parts[1]);
                 return exists ? "1" : "0";
+
+            case "EXPIRE":
+                if (parts.length < 3) {
+                    return "ERROR: EXPIRE requires a key and seconds";
+                }
+                try {
+                    long seconds = Long.parseLong(parts[2]);
+                    boolean success = store.expire(parts[1], seconds);
+                    return success ? "1" : "0";
+                } catch (NumberFormatException e) {
+                    return "ERROR: seconds must be a number";
+                }
 
             default:
                 return "ERROR: unknown command '" + command + "'";
